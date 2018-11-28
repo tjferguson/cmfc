@@ -1,0 +1,34 @@
+{
+  "eventVersion": "2.1",
+  "eventSource": "aws:s3",
+  "awsRegion": "us-east-1",
+  "eventTime": "2018-11-28T06:54:57.595Z",
+  "eventName": "ObjectCreated:Put",
+  "userIdentity": {
+    "principalId": "AWS:AIDAIPDUPRQXIQIZKAYOQ"
+  },
+  "requestParameters": {
+    "sourceIPAddress": "208.78.232.7"
+  },
+  "responseElements": {
+    "x-amz-request-id": "24FF843A1C26320E",
+    "x-amz-id-2": "LumSLDeFzVR+XMxRZIP1tz8r0bqiVriKBWL8o2kIPb1wkevnBP+6aYXcR+AhOuJwl06mcdYX88U="
+  },
+  "s3": {
+    "s3SchemaVersion": "1.0",
+    "configurationId": "9ebb2ead-ac41-4373-86b1-1b234b81733c",
+    "bucket": {
+      "name": "work-polly-input-to-spanish",
+      "ownerIdentity": {
+        "principalId": "A1YSFO7CNM8C94"
+      },
+      "arn": "arn:aws:s3:::work-polly-input-to-spanish"
+    },
+    "object": {
+      "key": "work-transcribe-input-from-english-ME0f9c36c1de18d5ff001769873d36fc10.json",
+      "size": 15,
+      "eTag": "1441a7909c087dbbe7ce59881b9df8b9",
+      "sequencer": "005BFE3BC189295D2C"
+    }
+  }
+}

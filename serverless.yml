@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: compassion-1 # NOTE: update this with your service name
+service: compassion-3 # NOTE: update this with your service name
 plugins:
   - serverless-iam-roles-per-function
 # You can pin your service to only deploy with a specific Serverless version
@@ -29,10 +29,23 @@ provider:
       Action:
       - "translate:TranslateText"
       Resource: "*"
+    - Effect: Allow
+      Action:
+        - "S3:*"
+      Resource:
+      - "*"
+
 custom:
-  transcribe_input_bucket_name: transcribe-input-dev-3
-  translate_input_bucket_name: translate-input-dev-3
-  translate_output_bucket_name: translate-output-dev-3
+#  transcribe_input_from_spanish_bucket_name: transcribe-input-from-spanish-dev-2
+  transcribe_input_from_english_bucket_name: work-transcribe-input-from-english
+  translate_input_to_spanish_bucket_name: work-translate-input-to-spanish
+  translate_output_to_spanish_bucket_name: work-translate-output-to-spanish
+#  translate_input_to_english_bucket_name: translate-input-to-english-dev-2
+#  translate_output_to_english_bucket_name: translate-output-to-english-dev-2
+#  twillio_bucket_from_spanish_to_english_output_bucket: twillio-bucket-from-sp-to-en-output-bucket-dev-2
+  twillio_bucket_from_english_to_spanish_output_bucket: work-twillio-bucket-from-en-to-sp-output-bucket
+#  polly_input_to_english: polly-input-to-english-dev-2
+  polly_input_to_spanish: work-polly-input-to-spanish
 
 # you can overwrite defaults here
 #  stage: dev
@@ -68,28 +81,59 @@ custom:
 #    - exclude-me-dir/**
 
 functions:
-  transcribe:
-    handler: transcribe_handler.transcribe
-#    iamRoleStatementsInherit: true
-#    iamRoleStatements:
+  transcribe_from_english:
+    handler: transcribe_handler_from_english.transcribe_from_english
     events:
     - s3:
-        bucket: ${self:custom.transcribe_input_bucket_name}
+        bucket: ${self:custom.transcribe_input_from_english_bucket_name}
         event: s3:ObjectCreated:*
     environment:
-      translate_input_bucket: ${self:custom.translate_input_bucket_name}
+      translate_input_bucket: ${self:custom.translate_input_to_spanish_bucket_name}
 
-  translate:
-    handler: translate_handler.translate
-#    iamRoleStatementsInherit: true
-#    iamRoleStatements:
+#  transcribe_from_spanish:
+#    handler: transcribe_handler_from_spanish.transcribe_from_spanish
+#    events:
+#    - s3:
+#        bucket: ${self:custom.transcribe_input_from_spanish_bucket_name}
+#        event: s3:ObjectCreated:*
+#    environment:
+#      translate_input_bucket: ${self:custom.translate_input_to_english_bucket_name}
 
+#  translate_to_english:
+#    handler: translate_handler_to_english.translate_to_english
+#    events:
+#    - s3:
+#        bucket: ${self:custom.translate_input_to_english_bucket_name}
+#        event: s3:ObjectCreated:*
+#    environment:
+#      translate_output_bucket: ${self:custom.polly_input_to_english}
+
+  translate_to_spanish:
+    handler: translate_handler_to_spanish.translate_to_spanish
     events:
     - s3:
-        bucket: ${self:custom.translate_input_bucket_name}
+        bucket: ${self:custom.translate_input_to_spanish_bucket_name}
         event: s3:ObjectCreated:*
     environment:
-      translate_output_bucket: ${self:custom.translate_output_bucket_name}
+      translate_output_bucket: ${self:custom.polly_input_to_spanish}
+
+  polly_to_spanish:
+    handler: polly_handler_to_spanish.polly_to_spanish
+    events:
+    - s3:
+        bucket: ${self:custom.polly_input_to_spanish}
+        event: s3:ObjectCreated:*
+    environment:
+      polly_output_bucket_to_spanish: ${self:custom.twillio_bucket_from_english_to_spanish_output_bucket}
+#
+#  polly_to_english:
+#    handler: polly_handler_to_english.polly_to_english
+#    events:
+#    - s3:
+#        bucket: ${self:custom.polly_input_to_english}
+#        event: s3:ObjectCreated:*
+#    environment:
+#      polly_output_bucket_to_english: ${self:custom.twillio_bucket_from_spanish_to_english_output_bucket}
 
 #    environment:
 #      translate_input_bucket:
@@ -138,10 +182,25 @@ resources:
 #      Type: AWS::S3::Bucket
 #      Properties:
 #        BucketName: ${self:custom.translate_input_bucket_name}
-    outputBucketTranslate:
+    outputBucketTranslateToSpanish:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:custom.translate_output_bucket_name}
+        BucketName: ${self:custom.translate_output_to_spanish_bucket_name}
+
+#    outputBucketTranslateToEnglish:
+#      Type: AWS::S3::Bucket
+#      Properties:
+#        BucketName: ${self:custom.translate_output_to_english_bucket_name}
+
+#    twillioInputToEnglish:
+#      Type: AWS::S3::Bucket
+#      Properties:
+#        BucketName: ${self:custom.twillio_bucket_from_spanish_to_english_output_bucket}
+
+    twillioInputToSpanish:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.twillio_bucket_from_english_to_spanish_output_bucket}
 #  Outputs:
 #     NewOutput:
 #       Description: "Description for the output"
